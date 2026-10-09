@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>My Projects Zine</title>
+
+  <style>
+    :root {
+      --paper: #f1ede2;
+      --ink: #191919;
+      --accent: #ae0711;
+      --shadow: rgba(23, 18, 11, 0.22);
+      --flip-duration: 850ms;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      min-height: 100%;
+      background: transparent;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      overflow-x: hidden;
+    }
+
+    .zine {
+      width: min(1200px, 100%);
+      margin: 0 auto;
+      padding: 18px 18px 12px;
+    }
+
+    .viewer {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 2 / 1.08;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      perspective: 2400px;
+    }
+
+    .book {
+      position: relative;
+      width: 88%;
+      height: 90%;
+
+      transform-style: preserve-3d;
+    }
+
+    .spread {
+      position: absolute;
+      inset: 0;
+
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+
+      transform-style: preserve-3d;
+      transform-origin: left center;
+
+      backface-visibility: hidden;
+      will-change: transform, opacity, filter;
+    }
+
+    .page {
+      position: relative;
+
+      flex: 0 0 50%;
+      height: 100%;
+
+      overflow: hidden;
+
+      background: var(--paper);
+
+      box-shadow:
+        0 18px 50px var(--shadow),
+        inset 0 0 22px rgba(0, 0, 0, 0.025);
+    }
+
+    .page img {
+      display: block;
+
+      width: 100%;
+      height: 100%;
+
+      object-fit: contain;
+
+      background: var(--paper);
+
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .page.left {
+      border-radius: 7px 1px 1px 7px;
+    }
+
+    .page.right {
+      border-radius: 1px 7px 7px 1px;
+    }
+
+    .page.left::after,
+    .page.right::before {
+      content: "";
+
+      position: absolute;
+      top: 0;
+      bottom: 0;
+
+      width: 10%;
+
+      pointer-events: none;
+    }
+
+    .page.left::after {
+      right: 0;
+
+      background:
+        linear-gradient(
+          to left,
+          rgba(0, 0, 0, 0.15),
+          rgba(0, 0, 0, 0.045) 35%,
+          transparent
+        );
+    }
+
+    .page.right::before {
+      left: 0;
+
+      background:
+        linear-gradient(
+          to right,
+          rgba(0, 0, 0, 0.13),
+          rgba(0, 0, 0, 0.035) 35%,
+          transparent
+        );
+    }
+
+    .spread.single .page {
+      flex: 0 0 50%;
+
+      border-radius: 7px;
+    }
+
+    .spread.single .page::before,
+    .spread.single .page::after {
+      display: none;
+    }
+
+    /* -------------------------------------------------
+       PAGE FLIP ANIMATION
+    ------------------------------------------------- */
+
+    .flip-out-next {
+      animation:
+        flipOutNext
+        var(--flip-duration)
+        cubic-bezier(.55, .03, .28, .98)
+        forwards;
+
+      z-index: 20;
+    }
+
+    .flip-in-next {
+      animation:
+        flipInNext
+        var(--flip-duration)
+        cubic-bezier(.55, .03, .28, .98)
+        forwards;
+
+      z-index: 10;
+    }
+
+    .flip-out-prev {
+      animation:
+        flipOutPrev
+        var(--flip-duration)
+        cubic-bezier(.55, .03, .28, .98)
+        forwards;
+
+      z-index: 20;
+    }
+
+    .flip-in-prev {
+      animation:
+        flipInPrev
+        var(--flip-duration)
+        cubic-bezier(.55, .03, .28, .98)
+        forwards;
+
+      z-index: 10;
+    }
+
+    @keyframes flipOutNext {
+      0% {
+        transform:
+          rotateY(0deg)
+          translateX(0);
+
+        opacity: 1;
+        filter: brightness(1);
+      }
+
+      45% {
+        transform:
+          rotateY(-38deg)
+          translateX(-1%);
+
+        opacity: 1;
+        filter: brightness(.92);
+      }
+
+      75% {
+        transform:
+          rotateY(-72deg)
+          translateX(-3%);
+
+        opacity: .75;
+        filter: brightness(.82);
+      }
+
+      100% {
+        transform:
+          rotateY(-98deg)
+          translateX(-5%);
+
+        opacity: 0;
+        filter: brightness(.7);
+      }
+    }
+
+    @keyframes flipInNext {
+      0% {
+        transform:
+          rotateY(72deg)
+          translateX(4%);
+
+        opacity: 0;
+        filter: brightness(.72);
+      }
+
+      55% {
+        opacity: 1;
+      }
+
+      100% {
+        transform:
+          rotateY(0deg)
+          translateX(0);
+
+        opacity: 1;
+        filter: brightness(1);
+      }
+    }
+
+    @keyframes flipOutPrev {
+      0% {
+        transform:
+          rotateY(0deg)
+          translateX(0);
+
+        opacity: 1;
+        filter: brightness(1);
+      }
+
+      100% {
+        transform:
+          rotateY(98deg)
+          translateX(5%);
+
+        opacity: 0;
+        filter: brightness(.72);
+      }
+    }
+
+    @keyframes flipInPrev {
+      0% {
+        transform:
+          rotateY(-72deg)
+          translateX(-4%);
+
+        opacity: 0;
+        filter: brightness(.72);
+      }
+
+      100% {
+        transform:
+          rotateY(0deg)
+          translateX(0);
+
+        opacity: 1;
+        filter: brightness(1);
+      }
+    }
+
+    /* -------------------------------------------------
+       BUTTONS
+    ------------------------------------------------- */
+
+    .nav {
+      position: absolute;
+
+      top: 50%;
+
+      z-index: 50;
+
+      width: 42px;
+      height: 42px;
+
+      transform: translateY(-50%);
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      border: 0;
+      border-radius: 50%;
+
+      background: rgba(255, 255, 255, .82);
+
+      color: #111;
+
+      font-size: 27px;
+
+      cursor: pointer;
+
+      box-shadow:
+        0 5px 20px rgba(0, 0, 0, .12);
+
+      backdrop-filter: blur(6px);
+
+      opacity: .7;
+
+      transition:
+        opacity .2s ease,
+        transform .2s ease;
+    }
+
+    .nav:hover,
+    .nav:focus-visible {
+      opacity: 1;
+
+      transform:
+        translateY(-50%)
+        scale(1.07);
+
+      outline: none;
+    }
+
+    .prev {
+      left: 0;
+    }
+
+    .next {
+      right: 0;
+    }
+
+    .toolbar {
+      width: 88%;
+
+      margin: 8px auto 0;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      gap: 18px;
+
+      color: var(--ink);
+    }
+
+    .counter,
+    .play {
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .counter {
+      opacity: .55;
+    }
+
+    .play {
+      padding: 0;
+
+      border: 0;
+
+      background: transparent;
+
+      color: inherit;
+
+      cursor: pointer;
+
+      opacity: .55;
+    }
+
+    .play:hover,
+    .play:focus-visible {
+      opacity: 1;
+      outline: none;
+    }
+
+    /* -------------------------------------------------
+       MOBILE
+    ------------------------------------------------- */
+
+    @media (max-width: 700px) {
+
+      .zine {
+        padding: 8px;
+      }
+
+      .viewer {
+        aspect-ratio: 2 / 1.15;
+      }
+
+      .book {
+        width: 95%;
+        height: 84%;
+      }
+
+      .nav {
+        width: 34px;
+        height: 34px;
+
+        font-size: 22px;
+      }
+
+      .prev {
+        left: -3px;
+      }
+
+      .next {
+        right: -3px;
+      }
+
+      .toolbar {
+        width: 95%;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      .flip-out-next,
+      .flip-in-next,
+      .flip-out-prev,
+      .flip-in-prev {
+        animation-duration: 1ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="zine">
+
+    <section
+      class="viewer"
+      id="zineViewer"
+      aria-label="Portfolio projects zine"
+    >
+
+      <div
+        class="book"
+        id="zineBook"
+      ></div>
+
+      <button
+        class="nav prev"
+        id="prevButton"
+        aria-label="Previous pages"
+      >
+        ‹
+      </button>
+
+      <button
+        class="nav next"
+        id="nextButton"
+        aria-label="Next pages"
+      >
+        ›
+      </button>
+
+    </section>
+
+
+    <div class="toolbar">
+
+      <div
+        class="counter"
+        id="pageCounter"
+      ></div>
+
+      <button
+        class="play"
+        id="playButton"
+        aria-label="Pause automatic page turning"
+      >
+        pause
+      </button>
+
+    </div>
+
+  </main>
+
+
+  <script>
+
+    /* =================================================
+       PAGE IMAGES
+
+       These paths match your GitHub folder:
+
+       /images/page-01.jpg
+       /images/page-02.jpg
+       etc.
+    ================================================= */
+
+    const pages = [
+      "images/page-01.jpg",
+      "images/page-02.jpg",
+      "images/page-03.jpg",
+      "images/page-04.jpg",
+      "images/page-05.jpg",
+      "images/page-06.jpg",
+      "images/page-07.jpg",
+      "images/page-08.jpg",
+      "images/page-09.jpg",
+      "images/page-10.jpg",
+      "images/page-11.jpg",
+      "images/page-12.jpg"
+    ];
+
+
+    /* =================================================
+       MAGAZINE ORDER
+
+       cover
+       2 + 3
+       4 + 5
+       6 + 7
+       8 + 9
+       10 + 11
+       back cover
+    ================================================= */
+
+    const spreads = [
+
+      [pages[0]],
+
+      [pages[1], pages[2]],
+
+      [pages[3], pages[4]],
+
+      [pages[5], pages[6]],
+
+      [pages[7], pages[8]],
+
+      [pages[9], pages[10]],
+
+      [pages[11]]
+
+    ];
+
+
+    /* =================================================
+       SETTINGS
+    ================================================= */
+
+    const AUTO_FLIP_DELAY = 4500;
+
+    const FLIP_DURATION = 850;
+
+
+    const book =
+      document.getElementById("zineBook");
+
+    const viewer =
+      document.getElementById("zineViewer");
+
+    const prevButton =
+      document.getElementById("prevButton");
+
+    const nextButton =
+      document.getElementById("nextButton");
+
+    const playButton =
+      document.getElementById("playButton");
+
+    const counter =
+      document.getElementById("pageCounter");
+
+
+    let currentSpread = 0;
+
+    let animationLocked = false;
+
+    let autoPlaying = true;
+
+    let timer = null;
+
+
+    /* =================================================
+       CREATE A PAGE
+    ================================================= */
+
+    function createPage(
+      imagePath,
+      side = ""
+    ) {
+
+      const page =
+        document.createElement("div");
+
+      page.className =
+        "page " + side;
+
+
+      const image =
+        document.createElement("img");
+
+      image.src = imagePath;
+
+      image.alt =
+        "Portfolio zine page";
+
+      image.loading =
+        "eager";
+
+
+      page.appendChild(image);
+
+      return page;
+    }
+
+
+    /* =================================================
+       CREATE SPREAD
+    ================================================= */
+
+    function createSpread(spreadData) {
+
+      const spread =
+        document.createElement("div");
+
+
+      if (spreadData.length === 1) {
+
+        spread.className =
+          "spread single";
+
+        spread.appendChild(
+          createPage(
+            spreadData[0]
+          )
+        );
+
+      }
+
+
+      if (spreadData.length === 2) {
+
+        spread.className =
+          "spread double";
+
+        spread.appendChild(
+          createPage(
+            spreadData[0],
+            "left"
+          )
+        );
+
+        spread.appendChild(
+          createPage(
+            spreadData[1],
+            "right"
+          )
+        );
+
+      }
+
+
+      return spread;
+    }
+
+
+    /* =================================================
+       COUNTER
+    ================================================= */
+
+    function updateCounter() {
+
+      if (currentSpread === 0) {
+
+        counter.textContent =
+          "Cover";
+
+        return;
+      }
+
+
+      if (
+        currentSpread ===
+        spreads.length - 1
+      ) {
+
+        counter.textContent =
+          "Back cover";
+
+        return;
+      }
+
+
+      const firstPage =
+        currentSpread * 2;
+
+
+      counter.textContent =
+        `Pages ${firstPage}–${firstPage + 1}`;
+
+    }
+
+
+    /* =================================================
+       FIRST RENDER
+    ================================================= */
+
+    function renderInitial() {
+
+      book.innerHTML = "";
+
+      book.appendChild(
+        createSpread(
+          spreads[currentSpread]
+        )
+      );
+
+      updateCounter();
+
+    }
+
+
+    /* =================================================
+       PAGE TURN
+    ================================================= */
+
+    function goToSpread(
+      newIndex,
+      direction = 1
+    ) {
+
+      if (animationLocked) {
+        return;
+      }
+
+
+      if (newIndex < 0) {
+
+        newIndex =
+          spreads.length - 1;
+
+      }
+
+
+      if (
+        newIndex >=
+        spreads.length
+      ) {
+
+        newIndex = 0;
+
+      }
+
+
+      if (
+        newIndex ===
+        currentSpread
+      ) {
+
+        return;
+      }
+
+
+      animationLocked = true;
+
+
+      const oldSpread =
+        book.querySelector(".spread");
+
+
+      const newSpread =
+        createSpread(
+          spreads[newIndex]
+        );
+
+
+      book.appendChild(
+        newSpread
+      );
+
+
+      if (direction > 0) {
+
+        oldSpread.classList.add(
+          "flip-out-next"
+        );
+
+        newSpread.classList.add(
+          "flip-in-next"
+        );
+
+      } else {
+
+        oldSpread.classList.add(
+          "flip-out-prev"
+        );
+
+        newSpread.classList.add(
+          "flip-in-prev"
+        );
+
+      }
+
+
+      currentSpread =
+        newIndex;
+
+
+      updateCounter();
+
+
+      window.setTimeout(
+        () => {
+
+          oldSpread.remove();
+
+
+          newSpread.className =
+            "spread " +
+            (
+              spreads[
+                currentSpread
+              ].length === 1
+
+              ? "single"
+
+              : "double"
+            );
+
+
+          animationLocked =
+            false;
+
+        },
+
+        FLIP_DURATION + 80
+
+      );
+
+    }
+
+
+    function nextSpread() {
+
+      goToSpread(
+        currentSpread + 1,
+        1
+      );
+
+    }
+
+
+    function previousSpread() {
+
+      goToSpread(
+        currentSpread - 1,
+        -1
+      );
+
+    }
+
+
+    /* =================================================
+       AUTOPLAY
+    ================================================= */
+
+    function stopAutoPlay() {
+
+      if (timer) {
+
+        clearInterval(timer);
+
+        timer = null;
+
+      }
+
+    }
+
+
+    function startAutoPlay() {
+
+      stopAutoPlay();
+
+
+      if (!autoPlaying) {
+        return;
+      }
+
+
+      timer =
+        window.setInterval(
+          nextSpread,
+          AUTO_FLIP_DELAY
+        );
+
+    }
+
+
+    /* =================================================
+       BUTTONS
+    ================================================= */
+
+    nextButton.addEventListener(
+      "click",
+      () => {
+
+        nextSpread();
+
+        startAutoPlay();
+
+      }
+    );
+
+
+    prevButton.addEventListener(
+      "click",
+      () => {
+
+        previousSpread();
+
+        startAutoPlay();
+
+      }
+    );
+
+
+    playButton.addEventListener(
+      "click",
+      () => {
+
+        autoPlaying =
+          !autoPlaying;
+
+
+        playButton.textContent =
+          autoPlaying
+            ? "pause"
+            : "play";
+
+
+        playButton.setAttribute(
+          "aria-label",
+
+          autoPlaying
+            ? "Pause automatic page turning"
+            : "Resume automatic page turning"
+        );
+
+
+        if (autoPlaying) {
+
+          startAutoPlay();
+
+        } else {
+
+          stopAutoPlay();
+
+        }
+
+      }
+    );
+
+
+    /* =================================================
+       PAUSE WHILE READING
+    ================================================= */
+
+    viewer.addEventListener(
+      "mouseenter",
+      stopAutoPlay
+    );
+
+
+    viewer.addEventListener(
+      "mouseleave",
+      () => {
+
+        if (autoPlaying) {
+
+          startAutoPlay();
+
+        }
+
+      }
+    );
+
+
+    viewer.addEventListener(
+      "focusin",
+      stopAutoPlay
+    );
+
+
+    viewer.addEventListener(
+      "focusout",
+      () => {
+
+        if (autoPlaying) {
+
+          startAutoPlay();
+
+        }
+
+      }
+    );
+
+
+    /* =================================================
+       KEYBOARD
+    ================================================= */
+
+    document.addEventListener(
+      "keydown",
+      event => {
+
+        if (
+          event.key ===
+          "ArrowRight"
+        ) {
+
+          nextSpread();
+
+          startAutoPlay();
+
+        }
+
+
+        if (
+          event.key ===
+          "ArrowLeft"
+        ) {
+
+          previousSpread();
+
+          startAutoPlay();
+
+        }
+
+      }
+    );
+
+
+    /* =================================================
+       TOUCH / SWIPE
+    ================================================= */
+
+    let touchStartX = 0;
+
+
+    viewer.addEventListener(
+      "touchstart",
+      event => {
+
+        touchStartX =
+          event
+            .changedTouches[0]
+            .screenX;
+
+        stopAutoPlay();
+
+      },
+
+      { passive: true }
+
+    );
+
+
+    viewer.addEventListener(
+      "touchend",
+      event => {
+
+        const touchEndX =
+          event
+            .changedTouches[0]
+            .screenX;
+
+
+        const difference =
+          touchEndX -
+          touchStartX;
+
+
+        if (
+          Math.abs(
+            difference
+          ) > 45
+        ) {
+
+          if (
+            difference < 0
+          ) {
+
+            nextSpread();
+
+          } else {
+
+            previousSpread();
+
+          }
+
+        }
+
+
+        if (autoPlaying) {
+
+          startAutoPlay();
+
+        }
+
+      },
+
+      { passive: true }
+
+    );
+
+
+    /* =================================================
+       PRELOAD IMAGES
+    ================================================= */
+
+    pages.forEach(
+      imagePath => {
+
+        const preload =
+          new Image();
+
+        preload.src =
+          imagePath;
+
+      }
+    );
+
+
+    /* =================================================
+       START
+    ================================================= */
+
+    renderInitial();
+
+    startAutoPlay();
+
+  </script>
+
+</body>
+</html>
