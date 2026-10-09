@@ -1,959 +1,1348 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Projects Zine</title>
+<title>Projects Zine</title>
 
-  <style>
+<style>
+
+:root {
+    --paper: #f2eee4;
+    --page-gap: 18px;
+    --flip-speed: 800ms;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
+    background: transparent;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    overflow-x: hidden;
+}
+
+/* =========================
+   WHOLE ZINE AREA
+========================= */
+
+.zine {
+    width: 100%;
+    max-width: 1250px;
+    margin: 0 auto;
+    padding: 30px 55px 18px;
+}
+
+/* =========================
+   VIEWER
+========================= */
+
+.viewer {
+    position: relative;
+
+    width: 100%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    perspective: 2500px;
+}
+
+/*
+Each PDF page is square.
+
+Two-page book:
+square + gap + square
+*/
+
+.book {
+    position: relative;
+
+    width: min(100%, 1080px);
+
+    aspect-ratio: 2.03 / 1;
+
+    transform-style: preserve-3d;
+}
+
+/* =========================
+   SPREAD
+========================= */
+
+.spread {
+    position: absolute;
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: var(--page-gap);
+
+    transform-style: preserve-3d;
+
+    backface-visibility: hidden;
+
+    will-change:
+        transform,
+        opacity,
+        filter;
+}
+
+/* =========================
+   INDIVIDUAL PAGE
+========================= */
+
+.page {
+    position: relative;
+
+    height: 100%;
+    aspect-ratio: 1 / 1;
+
+    flex: 0 0 auto;
+
+    overflow: hidden;
+
+    background: var(--paper);
+
+    box-shadow:
+        0 14px 34px rgba(0,0,0,.13);
+
+    border-radius: 2px;
+}
+
+/* actual image */
+
+.page img {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: contain;
+
+    background: var(--paper);
+
+    user-select: none;
+    pointer-events: none;
+}
+
+/* =========================
+   BOOK SPINE SHADOW
+========================= */
+
+.page.left::after {
+    content: "";
+
+    position: absolute;
+
+    right: 0;
+    top: 0;
+    bottom: 0;
+
+    width: 5%;
+
+    pointer-events: none;
+
+    background:
+        linear-gradient(
+            to left,
+            rgba(0,0,0,.09),
+            transparent
+        );
+}
+
+.page.right::before {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    top: 0;
+    bottom: 0;
+
+    width: 5%;
+
+    pointer-events: none;
+
+    background:
+        linear-gradient(
+            to right,
+            rgba(0,0,0,.09),
+            transparent
+        );
+}
+
+/* =========================
+   SINGLE COVER
+========================= */
+
+.spread.single {
+    justify-content: center;
+}
+
+.spread.single .page {
+    height: 100%;
+    aspect-ratio: 1 / 1;
+
+    box-shadow:
+        0 18px 42px rgba(0,0,0,.16);
+}
+
+.spread.single .page::before,
+.spread.single .page::after {
+    display: none;
+}
+
+/* =========================
+   FLIP ANIMATION
+========================= */
+
+.flip-out-next {
+    animation:
+        flipOutNext
+        var(--flip-speed)
+        cubic-bezier(.55,.03,.28,.98)
+        forwards;
+
+    z-index: 10;
+}
+
+.flip-in-next {
+    animation:
+        flipInNext
+        var(--flip-speed)
+        cubic-bezier(.55,.03,.28,.98)
+        forwards;
+
+    z-index: 5;
+}
+
+.flip-out-prev {
+    animation:
+        flipOutPrev
+        var(--flip-speed)
+        cubic-bezier(.55,.03,.28,.98)
+        forwards;
+
+    z-index: 10;
+}
+
+.flip-in-prev {
+    animation:
+        flipInPrev
+        var(--flip-speed)
+        cubic-bezier(.55,.03,.28,.98)
+        forwards;
+
+    z-index: 5;
+}
+
+@keyframes flipOutNext {
+
+    0% {
+        transform:
+            rotateY(0deg)
+            translateX(0);
+
+        opacity: 1;
+
+        filter:
+            brightness(1);
+    }
+
+    45% {
+        transform:
+            rotateY(-35deg)
+            translateX(-1%);
+
+        filter:
+            brightness(.91);
+    }
+
+    100% {
+        transform:
+            rotateY(-91deg)
+            translateX(-3%);
+
+        opacity: 0;
+
+        filter:
+            brightness(.72);
+    }
+}
+
+@keyframes flipInNext {
+
+    0% {
+        transform:
+            rotateY(62deg)
+            translateX(3%);
+
+        opacity: 0;
+
+        filter:
+            brightness(.78);
+    }
+
+    100% {
+        transform:
+            rotateY(0deg)
+            translateX(0);
+
+        opacity: 1;
+
+        filter:
+            brightness(1);
+    }
+}
+
+@keyframes flipOutPrev {
+
+    0% {
+        transform:
+            rotateY(0deg);
+
+        opacity: 1;
+    }
+
+    100% {
+        transform:
+            rotateY(91deg);
+
+        opacity: 0;
+    }
+}
+
+@keyframes flipInPrev {
+
+    0% {
+        transform:
+            rotateY(-62deg);
+
+        opacity: 0;
+    }
+
+    100% {
+        transform:
+            rotateY(0deg);
+
+        opacity: 1;
+    }
+}
+
+/* =========================
+   NAVIGATION
+========================= */
+
+.nav {
+    position: absolute;
+
+    top: 50%;
+
+    transform:
+        translateY(-50%);
+
+    width: 45px;
+    height: 45px;
+
+    border: 0;
+    border-radius: 50%;
+
+    background:
+        rgba(255,255,255,.92);
+
+    color: #111;
+
+    font-size: 27px;
+
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow:
+        0 4px 16px rgba(0,0,0,.12);
+
+    z-index: 100;
+
+    transition:
+        transform .2s ease,
+        opacity .2s ease;
+
+    opacity: .8;
+}
+
+.nav:hover {
+    opacity: 1;
+
+    transform:
+        translateY(-50%)
+        scale(1.07);
+}
+
+.prev {
+    left: -12px;
+}
+
+.next {
+    right: -12px;
+}
+
+/* =========================
+   TOOLBAR
+========================= */
+
+.toolbar {
+    margin-top: 22px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    gap: 22px;
+}
+
+.counter,
+.play {
+    font-size: 11px;
+
+    letter-spacing: .14em;
+
+    text-transform: uppercase;
+
+    color: #777;
+}
+
+.play {
+    border: 0;
+
+    background: transparent;
+
+    cursor: pointer;
+
+    padding: 5px;
+}
+
+.play:hover {
+    color: #111;
+}
+
+/* =========================
+   ERROR MESSAGE
+========================= */
+
+.image-error {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    padding: 25px;
+
+    text-align: center;
+
+    background: #f2eee4;
+
+    font-size: 13px;
+
+    color: #9d1520;
+}
+
+.image-error strong {
+    color: #111;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 800px) {
+
     :root {
-      --paper: #f2eee4;
-      --ink: #181818;
-      --shadow: rgba(20, 15, 10, 0.22);
-      --flip-duration: 850ms;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html,
-    body {
-      margin: 0;
-      width: 100%;
-      min-height: 100%;
-      background: transparent;
-    }
-
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-      color: var(--ink);
-      overflow-x: hidden;
+        --page-gap: 8px;
     }
 
     .zine {
-      width: min(1200px, 100%);
-      margin: 0 auto;
-      padding: 14px;
-    }
-
-    .viewer {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 2 / 1.08;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      perspective: 2400px;
+        padding:
+            16px
+            35px
+            12px;
     }
 
     .book {
-      position: relative;
-      width: 90%;
-      height: 90%;
-
-      transform-style: preserve-3d;
+        width: 100%;
     }
-
-    .spread {
-      position: absolute;
-      inset: 0;
-
-      display: flex;
-      align-items: stretch;
-      justify-content: center;
-
-      transform-style: preserve-3d;
-      transform-origin: left center;
-      backface-visibility: hidden;
-
-      will-change: transform, opacity, filter;
-    }
-
-    .page {
-      position: relative;
-
-      flex: 0 0 50%;
-      height: 100%;
-
-      background: var(--paper);
-      overflow: hidden;
-
-      box-shadow:
-        0 18px 45px var(--shadow),
-        inset 0 0 18px rgba(0, 0, 0, 0.025);
-    }
-
-    .page img {
-      width: 100%;
-      height: 100%;
-
-      display: block;
-
-      object-fit: contain;
-      background: var(--paper);
-
-      pointer-events: none;
-      user-select: none;
-    }
-
-    .page.left {
-      border-radius: 8px 1px 1px 8px;
-    }
-
-    .page.right {
-      border-radius: 1px 8px 8px 1px;
-    }
-
-    .page.left::after,
-    .page.right::before {
-      content: "";
-
-      position: absolute;
-      top: 0;
-      bottom: 0;
-
-      width: 10%;
-
-      pointer-events: none;
-    }
-
-    .page.left::after {
-      right: 0;
-
-      background: linear-gradient(
-        to left,
-        rgba(0, 0, 0, 0.15),
-        rgba(0, 0, 0, 0.04) 35%,
-        transparent
-      );
-    }
-
-    .page.right::before {
-      left: 0;
-
-      background: linear-gradient(
-        to right,
-        rgba(0, 0, 0, 0.13),
-        rgba(0, 0, 0, 0.035) 35%,
-        transparent
-      );
-    }
-
-    .spread.single .page {
-      flex: 0 0 50%;
-      border-radius: 8px;
-    }
-
-    .spread.single .page::before,
-    .spread.single .page::after {
-      display: none;
-    }
-
-    /* FLIP ANIMATION */
-
-    .flip-out-next {
-      animation:
-        flipOutNext
-        var(--flip-duration)
-        cubic-bezier(.55, .03, .28, .98)
-        forwards;
-
-      z-index: 20;
-    }
-
-    .flip-in-next {
-      animation:
-        flipInNext
-        var(--flip-duration)
-        cubic-bezier(.55, .03, .28, .98)
-        forwards;
-
-      z-index: 10;
-    }
-
-    .flip-out-prev {
-      animation:
-        flipOutPrev
-        var(--flip-duration)
-        cubic-bezier(.55, .03, .28, .98)
-        forwards;
-
-      z-index: 20;
-    }
-
-    .flip-in-prev {
-      animation:
-        flipInPrev
-        var(--flip-duration)
-        cubic-bezier(.55, .03, .28, .98)
-        forwards;
-
-      z-index: 10;
-    }
-
-    @keyframes flipOutNext {
-      0% {
-        transform: rotateY(0deg);
-        opacity: 1;
-        filter: brightness(1);
-      }
-
-      50% {
-        transform: rotateY(-45deg) translateX(-1%);
-        opacity: 1;
-        filter: brightness(.9);
-      }
-
-      100% {
-        transform: rotateY(-95deg) translateX(-4%);
-        opacity: 0;
-        filter: brightness(.72);
-      }
-    }
-
-    @keyframes flipInNext {
-      0% {
-        transform: rotateY(70deg) translateX(3%);
-        opacity: 0;
-        filter: brightness(.75);
-      }
-
-      100% {
-        transform: rotateY(0deg);
-        opacity: 1;
-        filter: brightness(1);
-      }
-    }
-
-    @keyframes flipOutPrev {
-      0% {
-        transform: rotateY(0deg);
-        opacity: 1;
-      }
-
-      100% {
-        transform: rotateY(95deg) translateX(4%);
-        opacity: 0;
-      }
-    }
-
-    @keyframes flipInPrev {
-      0% {
-        transform: rotateY(-70deg) translateX(-3%);
-        opacity: 0;
-      }
-
-      100% {
-        transform: rotateY(0deg);
-        opacity: 1;
-      }
-    }
-
-    /* CONTROLS */
 
     .nav {
-      position: absolute;
-      top: 50%;
-      z-index: 50;
+        width: 36px;
+        height: 36px;
 
-      width: 42px;
-      height: 42px;
-
-      transform: translateY(-50%);
-
-      border: none;
-      border-radius: 50%;
-
-      background: rgba(255, 255, 255, 0.85);
-
-      font-size: 28px;
-      color: #111;
-
-      cursor: pointer;
-
-      box-shadow: 0 5px 18px rgba(0, 0, 0, 0.12);
-
-      opacity: 0.75;
-    }
-
-    .nav:hover {
-      opacity: 1;
+        font-size: 22px;
     }
 
     .prev {
-      left: 0;
+        left: -27px;
     }
 
     .next {
-      right: 0;
+        right: -27px;
     }
+}
 
-    .toolbar {
-      width: 90%;
-      margin: 8px auto 0;
+@media (prefers-reduced-motion: reduce) {
 
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 18px;
+    .flip-out-next,
+    .flip-in-next,
+    .flip-out-prev,
+    .flip-in-prev {
+        animation-duration: 1ms !important;
     }
+}
 
-    .counter,
-    .play {
-      font-size: 11px;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-
-      opacity: .55;
-    }
-
-    .play {
-      border: none;
-      background: transparent;
-      cursor: pointer;
-      color: inherit;
-    }
-
-    @media (max-width: 700px) {
-
-      .viewer {
-        aspect-ratio: 2 / 1.15;
-      }
-
-      .book {
-        width: 96%;
-        height: 84%;
-      }
-
-      .nav {
-        width: 34px;
-        height: 34px;
-        font-size: 22px;
-      }
-    }
-  </style>
+</style>
 </head>
+
 
 <body>
 
-  <main class="zine">
+<main class="zine">
 
     <section
-      class="viewer"
-      id="zineViewer"
-      aria-label="Projects zine"
+        class="viewer"
+        id="zineViewer"
+        aria-label="Projects zine"
     >
 
-      <div
-        class="book"
-        id="zineBook"
-      ></div>
+        <div
+            class="book"
+            id="zineBook"
+        ></div>
 
-      <button
-        class="nav prev"
-        id="prevButton"
-        aria-label="Previous pages"
-      >
-        ‹
-      </button>
 
-      <button
-        class="nav next"
-        id="nextButton"
-        aria-label="Next pages"
-      >
-        ›
-      </button>
+        <button
+            class="nav prev"
+            id="prevButton"
+            aria-label="Previous pages"
+        >
+            ‹
+        </button>
+
+
+        <button
+            class="nav next"
+            id="nextButton"
+            aria-label="Next pages"
+        >
+            ›
+        </button>
 
     </section>
 
 
     <div class="toolbar">
 
-      <div
-        class="counter"
-        id="pageCounter"
-      ></div>
+        <div
+            class="counter"
+            id="pageCounter"
+        ></div>
 
-      <button
-        class="play"
-        id="playButton"
-      >
-        pause
-      </button>
+
+        <button
+            class="play"
+            id="playButton"
+            aria-label="Pause automatic page turning"
+        >
+            pause
+        </button>
 
     </div>
 
-  </main>
+</main>
 
 
-  <script>
+<script>
 
-    /*
-      IMPORTANT:
-      Your images are in the ROOT folder
-      and named 1.png, 2.png ... 12.png
-    */
+/* ===========================================
+   YOUR ACTUAL GITHUB FILENAMES
 
-    const pages = [
-      "1.png",
-      "2.png",
-      "3.png",
-      "4.png",
-      "5.png",
-      "6.png",
-      "7.png",
-      "8.png",
-      "9.png",
-      "10.png",
-      "11.png",
-      "12.png"
-    ];
+   These images must exist beside index.html:
 
+   1.png
+   2.png
+   ...
+   12.png
+=========================================== */
 
-    /*
-      READING ORDER:
+const pages = [
 
-      1
-      2 + 3
-      4 + 5
-      6 + 7
-      8 + 9
-      10 + 11
-      12
-    */
+    "1.png",
+    "2.png",
+    "3.png",
+    "4.png",
+    "5.png",
+    "6.png",
+    "7.png",
+    "8.png",
+    "9.png",
+    "10.png",
+    "11.png",
+    "12.png"
 
-    const spreads = [
-
-      [pages[0]],
-
-      [pages[1], pages[2]],
-
-      [pages[3], pages[4]],
-
-      [pages[5], pages[6]],
-
-      [pages[7], pages[8]],
-
-      [pages[9], pages[10]],
-
-      [pages[11]]
-
-    ];
+];
 
 
-    const AUTO_FLIP_DELAY = 5000;
-    const FLIP_DURATION = 850;
+/* ===========================================
+   MAGAZINE PAGE ORDER
+
+   Cover
+   2 + 3
+   4 + 5
+   6 + 7
+   8 + 9
+   10 + 11
+   Back cover
+=========================================== */
+
+const spreads = [
+
+    [pages[0]],
+
+    [
+        pages[1],
+        pages[2]
+    ],
+
+    [
+        pages[3],
+        pages[4]
+    ],
+
+    [
+        pages[5],
+        pages[6]
+    ],
+
+    [
+        pages[7],
+        pages[8]
+    ],
+
+    [
+        pages[9],
+        pages[10]
+    ],
+
+    [pages[11]]
+
+];
 
 
-    const book =
-      document.getElementById("zineBook");
+/* ===========================================
+   SETTINGS
+=========================================== */
 
-    const viewer =
-      document.getElementById("zineViewer");
+const AUTO_FLIP_DELAY = 6000;
 
-    const prevButton =
-      document.getElementById("prevButton");
-
-    const nextButton =
-      document.getElementById("nextButton");
-
-    const playButton =
-      document.getElementById("playButton");
-
-    const counter =
-      document.getElementById("pageCounter");
+const FLIP_DURATION = 800;
 
 
-    let currentSpread = 0;
-    let locked = false;
-    let autoPlaying = true;
-    let timer = null;
+const book =
+    document.getElementById(
+        "zineBook"
+    );
+
+const viewer =
+    document.getElementById(
+        "zineViewer"
+    );
+
+const prevButton =
+    document.getElementById(
+        "prevButton"
+    );
+
+const nextButton =
+    document.getElementById(
+        "nextButton"
+    );
+
+const playButton =
+    document.getElementById(
+        "playButton"
+    );
+
+const counter =
+    document.getElementById(
+        "pageCounter"
+    );
 
 
-    function createPage(imagePath, side = "") {
+let currentSpread = 0;
 
-      const page =
-        document.createElement("div");
+let locked = false;
 
-      page.className =
+let autoPlaying = true;
+
+let timer = null;
+
+
+/* ===========================================
+   CREATE PAGE
+=========================================== */
+
+function createPage(
+    imagePath,
+    side = ""
+) {
+
+    const page =
+        document.createElement(
+            "div"
+        );
+
+
+    page.className =
         "page " + side;
 
 
-      const image =
-        document.createElement("img");
+    const image =
+        document.createElement(
+            "img"
+        );
 
-      image.src = imagePath;
 
-      image.alt =
+    image.src =
+        imagePath;
+
+
+    image.alt =
         "Projects zine page";
 
 
-      /*
-        This prints an error in the browser
-        console if an image cannot be found.
-      */
-
-      image.onerror = function () {
-
-        console.error(
-          "Could not load image:",
-          imagePath
-        );
-
-      };
-
-
-      page.appendChild(image);
-
-      return page;
-    }
-
-
-    function createSpread(spreadData) {
-
-      const spread =
-        document.createElement("div");
-
-
-      if (spreadData.length === 1) {
-
-        spread.className =
-          "spread single";
-
-        spread.appendChild(
-          createPage(
-            spreadData[0]
-          )
-        );
-
-      }
-
-
-      if (spreadData.length === 2) {
-
-        spread.className =
-          "spread double";
-
-        spread.appendChild(
-          createPage(
-            spreadData[0],
-            "left"
-          )
-        );
-
-        spread.appendChild(
-          createPage(
-            spreadData[1],
-            "right"
-          )
-        );
-
-      }
-
-
-      return spread;
-    }
-
-
-    function updateCounter() {
-
-      if (currentSpread === 0) {
-
-        counter.textContent =
-          "Cover";
-
-        return;
-      }
-
-
-      if (
-        currentSpread ===
-        spreads.length - 1
-      ) {
-
-        counter.textContent =
-          "Back cover";
-
-        return;
-      }
-
-
-      const firstPage =
-        currentSpread * 2;
-
-
-      counter.textContent =
-        `Pages ${firstPage}–${firstPage + 1}`;
-
-    }
-
-
-    function renderInitial() {
-
-      book.innerHTML = "";
-
-      book.appendChild(
-        createSpread(
-          spreads[currentSpread]
-        )
-      );
-
-      updateCounter();
-
-    }
-
-
-    function goToSpread(
-      newIndex,
-      direction = 1
-    ) {
-
-      if (locked) {
-        return;
-      }
-
-
-      if (newIndex < 0) {
-
-        newIndex =
-          spreads.length - 1;
-
-      }
-
-
-      if (
-        newIndex >=
-        spreads.length
-      ) {
-
-        newIndex = 0;
-
-      }
-
-
-      if (
-        newIndex ===
-        currentSpread
-      ) {
-
-        return;
-      }
-
-
-      locked = true;
-
-
-      const oldSpread =
-        book.querySelector(".spread");
-
-
-      const newSpread =
-        createSpread(
-          spreads[newIndex]
-        );
-
-
-      book.appendChild(
-        newSpread
-      );
-
-
-      if (direction > 0) {
-
-        oldSpread.classList.add(
-          "flip-out-next"
-        );
-
-        newSpread.classList.add(
-          "flip-in-next"
-        );
-
-      } else {
-
-        oldSpread.classList.add(
-          "flip-out-prev"
-        );
-
-        newSpread.classList.add(
-          "flip-in-prev"
-        );
-
-      }
-
-
-      currentSpread =
-        newIndex;
-
-
-      updateCounter();
-
-
-      setTimeout(
-        () => {
-
-          oldSpread.remove();
-
-
-          newSpread.className =
-            "spread " +
-            (
-              spreads[
-                currentSpread
-              ].length === 1
-
-              ? "single"
-
-              : "double"
+    /*
+      If GitHub cannot find a picture,
+      this now tells you EXACTLY
+      which filename is wrong.
+    */
+
+    image.onerror =
+        function () {
+
+            console.error(
+                "Missing file:",
+                imagePath
             );
 
 
-          locked = false;
+            page.innerHTML = `
+                <div class="image-error">
+
+                    <strong>
+                        Missing image
+                    </strong>
+
+                    <span>
+                        ${imagePath}
+                    </span>
+
+                    <span>
+                        Check the filename
+                        in GitHub.
+                    </span>
+
+                </div>
+            `;
+
+        };
+
+
+    page.appendChild(
+        image
+    );
+
+
+    return page;
+
+}
+
+
+/* ===========================================
+   CREATE SPREAD
+=========================================== */
+
+function createSpread(
+    spreadData
+) {
+
+    const spread =
+        document.createElement(
+            "div"
+        );
+
+
+    if (
+        spreadData.length === 1
+    ) {
+
+        spread.className =
+            "spread single";
+
+
+        spread.appendChild(
+
+            createPage(
+                spreadData[0]
+            )
+
+        );
+
+    }
+
+
+    if (
+        spreadData.length === 2
+    ) {
+
+        spread.className =
+            "spread double";
+
+
+        spread.appendChild(
+
+            createPage(
+                spreadData[0],
+                "left"
+            )
+
+        );
+
+
+        spread.appendChild(
+
+            createPage(
+                spreadData[1],
+                "right"
+            )
+
+        );
+
+    }
+
+
+    return spread;
+
+}
+
+
+/* ===========================================
+   COUNTER
+=========================================== */
+
+function updateCounter() {
+
+    if (
+        currentSpread === 0
+    ) {
+
+        counter.textContent =
+            "Cover";
+
+        return;
+
+    }
+
+
+    if (
+        currentSpread ===
+        spreads.length - 1
+    ) {
+
+        counter.textContent =
+            "Back cover";
+
+        return;
+
+    }
+
+
+    const first =
+        currentSpread * 2;
+
+
+    counter.textContent =
+        `Pages ${first}–${first + 1}`;
+
+}
+
+
+/* ===========================================
+   INITIAL RENDER
+=========================================== */
+
+function renderInitial() {
+
+    book.innerHTML = "";
+
+
+    book.appendChild(
+
+        createSpread(
+            spreads[
+                currentSpread
+            ]
+        )
+
+    );
+
+
+    updateCounter();
+
+}
+
+
+/* ===========================================
+   CHANGE SPREAD
+=========================================== */
+
+function goToSpread(
+    newIndex,
+    direction
+) {
+
+    if (locked) {
+        return;
+    }
+
+
+    if (
+        newIndex < 0
+    ) {
+
+        newIndex =
+            spreads.length - 1;
+
+    }
+
+
+    if (
+        newIndex >=
+        spreads.length
+    ) {
+
+        newIndex = 0;
+
+    }
+
+
+    if (
+        newIndex ===
+        currentSpread
+    ) {
+
+        return;
+
+    }
+
+
+    locked = true;
+
+
+    const oldSpread =
+        book.querySelector(
+            ".spread"
+        );
+
+
+    const newSpread =
+        createSpread(
+            spreads[
+                newIndex
+            ]
+        );
+
+
+    book.appendChild(
+        newSpread
+    );
+
+
+    if (
+        direction > 0
+    ) {
+
+        oldSpread.classList.add(
+            "flip-out-next"
+        );
+
+
+        newSpread.classList.add(
+            "flip-in-next"
+        );
+
+    } else {
+
+        oldSpread.classList.add(
+            "flip-out-prev"
+        );
+
+
+        newSpread.classList.add(
+            "flip-in-prev"
+        );
+
+    }
+
+
+    currentSpread =
+        newIndex;
+
+
+    updateCounter();
+
+
+    setTimeout(
+        () => {
+
+            oldSpread.remove();
+
+
+            newSpread.className =
+                "spread " +
+                (
+                    spreads[
+                        currentSpread
+                    ].length === 1
+
+                    ? "single"
+
+                    : "double"
+                );
+
+
+            locked = false;
 
         },
 
         FLIP_DURATION + 80
 
-      );
+    );
 
-    }
+}
 
 
-    function nextSpread() {
+/* ===========================================
+   NEXT / PREVIOUS
+=========================================== */
 
-      goToSpread(
+function nextSpread() {
+
+    goToSpread(
         currentSpread + 1,
         1
-      );
+    );
 
-    }
+}
 
 
-    function previousSpread() {
+function previousSpread() {
 
-      goToSpread(
+    goToSpread(
         currentSpread - 1,
         -1
-      );
+    );
 
-    }
+}
 
 
-    function stopAutoPlay() {
+/* ===========================================
+   AUTOPLAY
+=========================================== */
 
-      if (timer) {
+function stopAutoPlay() {
 
-        clearInterval(timer);
+    if (timer) {
+
+        clearInterval(
+            timer
+        );
 
         timer = null;
 
-      }
+    }
 
+}
+
+
+function startAutoPlay() {
+
+    stopAutoPlay();
+
+
+    if (!autoPlaying) {
+        return;
     }
 
 
-    function startAutoPlay() {
-
-      stopAutoPlay();
-
-
-      if (!autoPlaying) {
-        return;
-      }
-
-
-      timer =
+    timer =
         setInterval(
-          nextSpread,
-          AUTO_FLIP_DELAY
+            nextSpread,
+            AUTO_FLIP_DELAY
         );
 
-    }
+}
 
 
-    nextButton.addEventListener(
-      "click",
-      () => {
+/* ===========================================
+   BUTTON EVENTS
+=========================================== */
+
+nextButton.addEventListener(
+    "click",
+    () => {
 
         nextSpread();
+
         startAutoPlay();
 
-      }
-    );
+    }
+);
 
 
-    prevButton.addEventListener(
-      "click",
-      () => {
+prevButton.addEventListener(
+    "click",
+    () => {
 
         previousSpread();
+
         startAutoPlay();
 
-      }
-    );
+    }
+);
 
 
-    playButton.addEventListener(
-      "click",
-      () => {
+playButton.addEventListener(
+    "click",
+    () => {
 
         autoPlaying =
-          !autoPlaying;
+            !autoPlaying;
 
 
         playButton.textContent =
-          autoPlaying
-            ? "pause"
-            : "play";
+            autoPlaying
+                ? "pause"
+                : "play";
 
 
-        if (autoPlaying) {
+        if (
+            autoPlaying
+        ) {
 
-          startAutoPlay();
+            startAutoPlay();
 
         } else {
 
-          stopAutoPlay();
+            stopAutoPlay();
 
         }
 
-      }
-    );
+    }
+);
 
 
-    viewer.addEventListener(
-      "mouseenter",
-      stopAutoPlay
-    );
+/* ===========================================
+   PAUSE WHEN READING
+=========================================== */
+
+viewer.addEventListener(
+    "mouseenter",
+    stopAutoPlay
+);
 
 
-    viewer.addEventListener(
-      "mouseleave",
-      () => {
-
-        if (autoPlaying) {
-          startAutoPlay();
-        }
-
-      }
-    );
-
-
-    let touchStartX = 0;
-
-
-    viewer.addEventListener(
-      "touchstart",
-      event => {
-
-        touchStartX =
-          event.changedTouches[0].screenX;
-
-        stopAutoPlay();
-
-      },
-
-      { passive: true }
-
-    );
-
-
-    viewer.addEventListener(
-      "touchend",
-      event => {
-
-        const touchEndX =
-          event.changedTouches[0].screenX;
-
-
-        const difference =
-          touchEndX -
-          touchStartX;
-
+viewer.addEventListener(
+    "mouseleave",
+    () => {
 
         if (
-          Math.abs(difference) >
-          45
+            autoPlaying
         ) {
 
-          if (difference < 0) {
+            startAutoPlay();
+
+        }
+
+    }
+);
+
+
+/* ===========================================
+   KEYBOARD
+=========================================== */
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if (
+            event.key ===
+            "ArrowRight"
+        ) {
 
             nextSpread();
 
-          } else {
+        }
+
+
+        if (
+            event.key ===
+            "ArrowLeft"
+        ) {
 
             previousSpread();
 
-          }
-
         }
 
-
-        if (autoPlaying) {
-
-          startAutoPlay();
-
-        }
-
-      },
-
-      { passive: true }
-
-    );
+    }
+);
 
 
-    document.addEventListener(
-      "keydown",
-      event => {
+/* ===========================================
+   SWIPE
+=========================================== */
+
+let touchStartX = 0;
+
+
+viewer.addEventListener(
+    "touchstart",
+    event => {
+
+        touchStartX =
+            event
+                .changedTouches[0]
+                .screenX;
+
+
+        stopAutoPlay();
+
+    },
+
+    {
+        passive: true
+    }
+);
+
+
+viewer.addEventListener(
+    "touchend",
+    event => {
+
+        const endX =
+            event
+                .changedTouches[0]
+                .screenX;
+
+
+        const difference =
+            endX -
+            touchStartX;
+
 
         if (
-          event.key ===
-          "ArrowRight"
+            Math.abs(
+                difference
+            ) > 45
         ) {
 
-          nextSpread();
+            if (
+                difference < 0
+            ) {
+
+                nextSpread();
+
+            } else {
+
+                previousSpread();
+
+            }
 
         }
 
 
         if (
-          event.key ===
-          "ArrowLeft"
+            autoPlaying
         ) {
 
-          previousSpread();
+            startAutoPlay();
 
         }
 
-      }
-    );
+    },
+
+    {
+        passive: true
+    }
+);
 
 
-    /*
-      Preload every image
-    */
+/* ===========================================
+   PRELOAD ALL IMAGES
+=========================================== */
 
-    pages.forEach(
-      imagePath => {
+pages.forEach(
+    path => {
 
-        const preload =
-          new Image();
-
-        preload.src =
-          imagePath;
-
-      }
-    );
+        const image =
+            new Image();
 
 
-    renderInitial();
-    startAutoPlay();
+        image.src =
+            path;
 
-  </script>
+
+        image.onerror =
+            () => {
+
+                console.error(
+                    "PRELOAD ERROR:",
+                    path
+                );
+
+            };
+
+    }
+);
+
+
+/* ===========================================
+   START
+=========================================== */
+
+renderInitial();
+
+startAutoPlay();
+
+</script>
 
 </body>
 </html>
